@@ -98,11 +98,8 @@ func (s *server) ServeDNSStubForward(w dns.ResponseWriter, req *dns.Msg, ns []st
 	nsid := int(req.Id) % len(ns)
 	try := 0
 Redo:
-	if isTCP(w) {
-		r, err = exchangeWithRetry(s.dnsTCPclient, req, ns[nsid])
-	} else {
-		r, err = exchangeWithRetry(s.dnsUDPclient, req, ns[nsid])
-	}
+	r, err = exchangeWithRetry(s.dnsTCPclient, req, ns[nsid])
+
 	if err == nil || err == dns.ErrTruncated {
 		r.Compress = true
 		r.Id = req.Id
