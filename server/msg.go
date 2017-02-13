@@ -12,11 +12,12 @@ import "github.com/miekg/dns"
 // If the transport is tcp we are going to drop RR from the answer section
 // until it fits. When this is case the returned bool is true.
 func Fit(m *dns.Msg, size int, tcp bool) (*dns.Msg, bool) {
-	if m.Len() > size {
+	msgSizeFix := 150
+	if m.Len() +msgSizeFix > size {
 		// Check for OPT Records at the end and keep those. TODO(miek)
 		m.Extra = nil
 	}
-	if m.Len() < size {
+	if m.Len() +msgSizeFix < size {
 		return m, false
 	}
 
@@ -39,7 +40,7 @@ func Fit(m *dns.Msg, size int, tcp bool) (*dns.Msg, bool) {
 		mid := (min + max) / 2
 		m.Answer = original[:mid]
 
-		if m.Len() < size {
+		if m.Len() +msgSizeFix < size {
 			min++
 			continue
 		}
